@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { Inventory } from "../inventory/inventory.entity";
+import { InventoryPolicy } from "../inventory-policies/inventory-policy.entity";
 import { ItemCategory } from "../item-categories/item-category.entity";
 import { Item } from "../items/item.entity";
 import { Warehouse } from "../warehouses/warehouse.entity";
@@ -9,7 +10,7 @@ import { defaultDatabaseUrl } from "./database-url";
 const dataSource = new DataSource({
 	type: "postgres",
 	url: defaultDatabaseUrl,
-	entities: [Warehouse, ItemCategory, Item, Inventory],
+	entities: [Warehouse, ItemCategory, Item, Inventory, InventoryPolicy],
 	dropSchema: process.env.DB_RESET === "1",
 	synchronize: true,
 });
@@ -20,10 +21,12 @@ async function seed() {
 	const categoryRepository = dataSource.getRepository(ItemCategory);
 	const itemRepository = dataSource.getRepository(Item);
 	const inventoryRepository = dataSource.getRepository(Inventory);
+	const policyRepository = dataSource.getRepository(InventoryPolicy);
 
 	await inventoryRepository.createQueryBuilder().delete().execute();
 	await itemRepository.createQueryBuilder().delete().execute();
 	await categoryRepository.createQueryBuilder().delete().execute();
+	await policyRepository.createQueryBuilder().delete().execute();
 	await warehouseRepository.createQueryBuilder().delete().execute();
 
 	const warehouses = [
@@ -98,6 +101,12 @@ async function seed() {
 			reorderPoint,
 		});
 	}
+
+	await policyRepository.save({
+		id: "default",
+		lowStockMode: "low_stock_threshold",
+		lowStockThreshold: 25,
+	});
 
 	await dataSource.destroy();
 }
