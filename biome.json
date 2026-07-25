@@ -11,7 +11,8 @@
 			"!apps/backend/dist",
 			"!apps/frontend/src/app/routeTree.gen.ts",
 			"!apps/frontend/src/components/ui",
-			"!node_modules"
+			"!node_modules",
+			"!.claude/settings.local.json"
 		]
 	},
 	"javascript": {
