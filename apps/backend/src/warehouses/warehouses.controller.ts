@@ -12,7 +12,12 @@ export class WarehousesController {
 	@Get()
 	async findAll(@Query() filter: WarehouseFilterRequest) {
 		const { data, total } = await this.warehousesService.findAll(filter);
-		return PaginatedResponse.from(data.map(WarehouseResponse.from), filter.page, filter.limit, total);
+		return PaginatedResponse.from(
+			data.map(WarehouseResponse.from),
+			filter.page,
+			filter.limit,
+			total,
+		);
 	}
 
 	@Get(":id")
