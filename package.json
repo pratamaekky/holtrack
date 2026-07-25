@@ -1,0 +1,20 @@
+{
+	"name": "mini-wms",
+	"private": true,
+	"workspaces": [
+		"apps/*"
+	],
+	"scripts": {
+		"dev": "bun --filter '*' dev",
+		"test": "bun --filter '*' test",
+		"test:backend": "bun --filter '@mini-wms/backend' test",
+		"test:frontend": "bun --filter '@mini-wms/frontend' test",
+		"test:e2e": "bun --filter '@mini-wms/backend' db:reset && playwright test",
+		"lint": "biome check .",
+		"format": "biome check --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.6",
+		"@playwright/test": "^1.57.0"
+	}
+}

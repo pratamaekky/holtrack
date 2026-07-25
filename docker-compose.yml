@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: mini-wms-postgres
+    environment:
+      POSTGRES_DB: mini_wms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - mini_wms_postgres:/var/lib/postgresql/data
+
+volumes:
+  mini_wms_postgres:
+    driver: local
