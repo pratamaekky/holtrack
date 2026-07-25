@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.local
+.superpowers/
+apps/frontend/.tanstack/
+playwright-report/
+test-results/
