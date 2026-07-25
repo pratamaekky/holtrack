@@ -1,9 +1,10 @@
 import { BadRequestException } from "@nestjs/common";
 import type { ObjectLiteral, SelectQueryBuilder } from "typeorm";
+import { ListQueryRequest } from "../query/list-query.request";
 import { FilterOperator } from "./filter-operator";
 import { getFilterOperators } from "./operator.decorator";
 
-export abstract class BaseFilter {
+export abstract class BaseFilter extends ListQueryRequest {
 	applyTo<T extends ObjectLiteral>(queryBuilder: SelectQueryBuilder<T>): void {
 		let paramIndex = 0;
 

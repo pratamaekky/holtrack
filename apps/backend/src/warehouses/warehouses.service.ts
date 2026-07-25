@@ -4,7 +4,7 @@ import { Not, Repository } from "typeorm";
 import { FilterQueryBuilder } from "../common/query/filter-query-builder";
 import { Inventory } from "../inventory/inventory.entity";
 import type { WarehouseRequest } from "./dto/warehouse.request";
-import type { WarehouseFilterRequest } from "./dto/warehouse-filter.request";
+import { WAREHOUSE_SORT_FIELDS, type WarehouseFilterRequest } from "./dto/warehouse-filter.request";
 import { Warehouse } from "./warehouse.entity";
 
 @Injectable()
@@ -14,12 +14,12 @@ export class WarehousesService {
 		@InjectRepository(Inventory) private readonly inventoryRepository: Repository<Inventory>,
 	) {}
 
-	findAll(filter: WarehouseFilterRequest): Promise<Warehouse[]> {
-		const queryBuilder = this.warehouseRepository
-			.createQueryBuilder("warehouse")
-			.orderBy("warehouse.createdAt", "DESC");
+	findAll(filter: WarehouseFilterRequest): Promise<{ data: Warehouse[]; total: number }> {
+		const queryBuilder = this.warehouseRepository.createQueryBuilder("warehouse");
 
-		return new FilterQueryBuilder(queryBuilder).applyFilter(filter).getMany();
+		return new FilterQueryBuilder(queryBuilder)
+			.applyFilter(filter)
+			.getPaginated(filter, WAREHOUSE_SORT_FIELDS, "createdAt");
 	}
 
 	async findById(id: string): Promise<Warehouse> {

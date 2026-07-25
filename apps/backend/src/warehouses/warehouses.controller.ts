@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { PaginatedResponse } from "../common/query/paginated.response";
 import { WarehouseRequest } from "./dto/warehouse.request";
 import { WarehouseResponse } from "./dto/warehouse.response";
 import { WarehouseFilterRequest } from "./dto/warehouse-filter.request";
@@ -10,8 +11,8 @@ export class WarehousesController {
 
 	@Get()
 	async findAll(@Query() filter: WarehouseFilterRequest) {
-		const warehouses = await this.warehousesService.findAll(filter);
-		return warehouses.map(WarehouseResponse.from);
+		const { data, total } = await this.warehousesService.findAll(filter);
+		return PaginatedResponse.from(data.map(WarehouseResponse.from), filter.page, filter.limit, total);
 	}
 
 	@Get(":id")
