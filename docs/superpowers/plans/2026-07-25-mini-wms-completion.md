@@ -837,10 +837,13 @@ export class InventoryFilterRequest extends BaseFilter {
 	@IsString()
 	warehouseName?: string;
 
+	// Property name is "sku" (matching test/inventory.spec.ts's
+	// `?sku=ilike:CHG-USBC-20W`), not "itemSku" — the SQL path and the
+	// InventoryRow response field stay "item.sku"/"itemSku" respectively.
 	@Operator(FilterOperator.ILIKE, { path: "item.sku" })
 	@IsOptional()
 	@IsString()
-	itemSku?: string;
+	sku?: string;
 
 	@Operator(FilterOperator.ILIKE, { path: "item.name" })
 	@IsOptional()
@@ -2847,7 +2850,7 @@ import type { Inventory } from "@/shared/data/wms";
 export interface InventoryFilters extends Record<string, string> {
 	category: string;
 	itemName: string;
-	itemSku: string;
+	sku: string;
 	status: string;
 	warehouseCode: string;
 	warehouseName: string;
@@ -2877,8 +2880,10 @@ export const inventoryResourceAtoms = createPaginatedResourceAtoms<
 			type: "input",
 		},
 		{
+			// key is "sku" (not "itemSku") to match the backend's
+			// InventoryFilterRequest.sku query param exactly.
 			ariaLabel: "Filter inventory by item SKU",
-			key: "itemSku",
+			key: "sku",
 			label: "Item SKU",
 			operator: "ilike",
 			type: "input",
@@ -2913,7 +2918,7 @@ export const inventoryResourceAtoms = createPaginatedResourceAtoms<
 	initialFilters: {
 		category: "",
 		itemName: "",
-		itemSku: "",
+		sku: "",
 		status: "",
 		warehouseCode: "",
 		warehouseName: "",
