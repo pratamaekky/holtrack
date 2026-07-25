@@ -5,7 +5,7 @@ import { FilterQueryBuilder } from "../common/query/filter-query-builder";
 import { Inventory } from "../inventory/inventory.entity";
 import { ItemCategory } from "../item-categories/item-category.entity";
 import type { ItemRequest } from "./dto/item.request";
-import type { ItemFilterRequest } from "./dto/item-filter.request";
+import { ITEM_SORT_FIELDS, type ItemFilterRequest } from "./dto/item-filter.request";
 import { Item } from "./item.entity";
 
 @Injectable()
@@ -17,13 +17,14 @@ export class ItemsService {
 		private readonly categoryRepository: Repository<ItemCategory>,
 	) {}
 
-	findAll(filter: ItemFilterRequest): Promise<Item[]> {
+	findAll(filter: ItemFilterRequest): Promise<{ data: Item[]; total: number }> {
 		const queryBuilder = this.itemRepository
 			.createQueryBuilder("item")
-			.leftJoinAndSelect("item.category", "category")
-			.orderBy("item.createdAt", "DESC");
+			.leftJoinAndSelect("item.category", "category");
 
-		return new FilterQueryBuilder(queryBuilder).applyFilter(filter).getMany();
+		return new FilterQueryBuilder(queryBuilder)
+			.applyFilter(filter)
+			.getPaginated(filter, ITEM_SORT_FIELDS, "createdAt");
 	}
 
 	async findById(id: string): Promise<Item> {

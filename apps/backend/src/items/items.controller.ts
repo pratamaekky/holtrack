@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { PaginatedResponse } from "../common/query/paginated.response";
 import { ItemRequest } from "./dto/item.request";
 import { ItemResponse } from "./dto/item.response";
 import { ItemFilterRequest } from "./dto/item-filter.request";
@@ -10,8 +11,8 @@ export class ItemsController {
 
 	@Get()
 	async findAll(@Query() filter: ItemFilterRequest) {
-		const items = await this.itemsService.findAll(filter);
-		return items.map(ItemResponse.from);
+		const { data, total } = await this.itemsService.findAll(filter);
+		return PaginatedResponse.from(data.map(ItemResponse.from), filter.page, filter.limit, total);
 	}
 
 	@Get(":id")
