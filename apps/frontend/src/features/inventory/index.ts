@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { apiService } from "@/api/apiService";
 import type { Item, PaginatedResponse, Warehouse } from "@/shared/data/wms";
 
-export function InventoryTable() {
-	return null;
-}
+export { default as InventoryTable } from "./components/InventoryTable";
 
 export function useInventoryOptions(enabled = true) {
 	const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
