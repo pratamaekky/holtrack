@@ -1,9 +1,6 @@
-import { useEffect, useState } from "react";
-import { apiService } from "@/api/apiService";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
 	Table,
 	TableBody,
@@ -12,51 +9,24 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { Warehouse } from "@/shared/data/wms";
+import PaginationFooter from "@/shared/components/table/PaginationFooter";
+import ResourceFilterPanel from "@/shared/components/table/ResourceFilterPanel";
+import SortableHeaderButton from "@/shared/components/table/SortableHeaderButton";
 import { formatStatus } from "@/shared/data/wms";
-import { buildFilterQuery } from "@/shared/utils/build-filter-query";
+import { usePaginatedResourceAtoms } from "@/shared/hooks/pagination/usePaginatedResourceAtoms";
+import { warehousesResourceAtoms } from "../state/warehousesResourceAtoms";
 import WarehouseEditorDialog from "./WarehouseEditorDialog";
 
 export default function WarehousesTable() {
-	const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-	const [filters, setFilters] = useState({ city: "", code: "", name: "", status: "" });
-	const [error, setError] = useState<string | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const [reloadKey, setReloadKey] = useState(0);
-	const retry = () => setReloadKey((current) => current + 1);
-	const query = buildFilterQuery(filters, { exactKeys: ["status"] });
+	const { data, error, filters, loading, order, retry, setPage, sort, toggleSort, updateFilter } =
+		usePaginatedResourceAtoms(warehousesResourceAtoms);
 
-	useEffect(() => {
-		let isCurrent = true;
-		void reloadKey;
-		setIsLoading(true);
-		setError(null);
+	const rows = data?.data ?? [];
+	const page = data?.page ?? 1;
+	const totalPages = data?.totalPages ?? 1;
 
-		apiService
-			.get<Warehouse[]>(`/warehouses${query}`)
-			.then((response) => {
-				if (isCurrent) {
-					setWarehouses(response);
-				}
-			})
-			.catch((loadError) => {
-				if (isCurrent) {
-					setError(loadError instanceof Error ? loadError.message : "Failed to load warehouses.");
-				}
-			})
-			.finally(() => {
-				if (isCurrent) {
-					setIsLoading(false);
-				}
-			});
-
-		return () => {
-			isCurrent = false;
-		};
-	}, [query, reloadKey]);
-
-	const tableBody = warehouses.length ? (
-		warehouses.map((warehouse) => (
+	const tableBody = rows.length ? (
+		rows.map((warehouse) => (
 			<TableRow key={warehouse.id}>
 				<TableCell>{warehouse.code}</TableCell>
 				<TableCell>{warehouse.name}</TableCell>
@@ -88,21 +58,49 @@ export default function WarehousesTable() {
 		</div>
 	) : (
 		<div className="overflow-hidden rounded-lg border">
-			{isLoading ? (
-				<p className="p-4 text-sm text-muted-foreground">Loading warehouses...</p>
-			) : null}
+			{loading ? <p className="p-4 text-sm text-muted-foreground">Loading warehouses...</p> : null}
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead>Code</TableHead>
-						<TableHead>Name</TableHead>
-						<TableHead>City</TableHead>
+						<TableHead>
+							<SortableHeaderButton
+								activeOrder={order}
+								activeSort={sort}
+								field="code"
+								label="Code"
+								onToggle={toggleSort}
+							/>
+						</TableHead>
+						<TableHead>
+							<SortableHeaderButton
+								activeOrder={order}
+								activeSort={sort}
+								field="name"
+								label="Name"
+								onToggle={toggleSort}
+							/>
+						</TableHead>
+						<TableHead>
+							<SortableHeaderButton
+								activeOrder={order}
+								activeSort={sort}
+								field="city"
+								label="City"
+								onToggle={toggleSort}
+							/>
+						</TableHead>
 						<TableHead>Status</TableHead>
 						<TableHead />
 					</TableRow>
 				</TableHeader>
 				<TableBody>{tableBody}</TableBody>
 			</Table>
+			<PaginationFooter
+				page={page}
+				totalPages={totalPages}
+				onPrev={() => setPage(page - 1)}
+				onNext={() => setPage(page + 1)}
+			/>
 		</div>
 	);
 
@@ -113,40 +111,11 @@ export default function WarehousesTable() {
 				<WarehouseEditorDialog onSaved={retry} />
 			</CardHeader>
 			<CardContent className="space-y-3">
-				<div className="grid gap-2 md:grid-cols-4">
-					<Input
-						aria-label="Filter warehouse code"
-						placeholder="Code"
-						value={filters.code}
-						onChange={(event) =>
-							setFilters((current) => ({ ...current, code: event.target.value }))
-						}
-					/>
-					<Input
-						aria-label="Filter warehouse name"
-						placeholder="Name"
-						value={filters.name}
-						onChange={(event) =>
-							setFilters((current) => ({ ...current, name: event.target.value }))
-						}
-					/>
-					<Input
-						aria-label="Filter warehouse city"
-						placeholder="City"
-						value={filters.city}
-						onChange={(event) =>
-							setFilters((current) => ({ ...current, city: event.target.value }))
-						}
-					/>
-					<Input
-						aria-label="Filter warehouse status"
-						placeholder="Status"
-						value={filters.status}
-						onChange={(event) =>
-							setFilters((current) => ({ ...current, status: event.target.value }))
-						}
-					/>
-				</div>
+				<ResourceFilterPanel
+					filterDefinitions={warehousesResourceAtoms.config.filterDefinitions}
+					filters={filters}
+					onChange={(key, value) => updateFilter({ key, value })}
+				/>
 				{content}
 			</CardContent>
 		</Card>
