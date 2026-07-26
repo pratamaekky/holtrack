@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SelectCombobox from "@/shared/components/forms/SelectCombobox";
 import type { Item, ItemPayload } from "@/shared/data/wms";
+import { useItemCategoryOptions } from "../hooks/useItemCategoryOptions";
 import { useSaveItem } from "../hooks/useSaveItem";
 import { getInitialItemForm } from "../utils/item-form";
 
@@ -41,6 +42,7 @@ export default function ItemEditorDialog({ item, onSaved }: ItemEditorDialogProp
 		},
 	});
 	const isSaving = saveMutation.isPending;
+	const { data: categoryOptions } = useItemCategoryOptions(open);
 	const title = isEditing ? "Edit item" : "Add item";
 	const description = isEditing ? "Update item master data." : "Create item master data.";
 	const submitText = isSaving ? "Saving..." : "Save";
@@ -102,12 +104,16 @@ export default function ItemEditorDialog({ item, onSaved }: ItemEditorDialogProp
 							/>
 						</div>
 						<div className="grid gap-1">
-							<Label htmlFor="item-category-id">Category ID</Label>
-							<Input
-								id="item-category-id"
+							<Label>Category</Label>
+							<SelectCombobox
+								ariaLabel="Item category"
 								value={form.categoryId}
-								required
-								onChange={(event) => updateField("categoryId", event.target.value)}
+								options={categoryOptions.map((category) => ({
+									label: category.name,
+									value: category.id,
+								}))}
+								placeholder="Select category"
+								onChange={(value) => updateField("categoryId", value)}
 							/>
 						</div>
 						<div className="grid gap-1">

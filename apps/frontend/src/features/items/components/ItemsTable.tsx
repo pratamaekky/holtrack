@@ -1,9 +1,6 @@
-import { useEffect, useState } from "react";
-import { apiService } from "@/api/apiService";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
 	Table,
 	TableBody,
@@ -12,51 +9,24 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { Item } from "@/shared/data/wms";
+import PaginationFooter from "@/shared/components/table/PaginationFooter";
+import ResourceFilterPanel from "@/shared/components/table/ResourceFilterPanel";
+import SortableHeaderButton from "@/shared/components/table/SortableHeaderButton";
 import { formatStatus } from "@/shared/data/wms";
-import { buildFilterQuery } from "@/shared/utils/build-filter-query";
+import { usePaginatedResourceAtoms } from "@/shared/hooks/pagination/usePaginatedResourceAtoms";
+import { itemsResourceAtoms } from "../state/itemsResourceAtoms";
 import ItemEditorDialog from "./ItemEditorDialog";
 
 export default function ItemsTable() {
-	const [items, setItems] = useState<Item[]>([]);
-	const [filters, setFilters] = useState({ category: "", name: "", sku: "", status: "" });
-	const [error, setError] = useState<string | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const [reloadKey, setReloadKey] = useState(0);
-	const retry = () => setReloadKey((current) => current + 1);
-	const query = buildFilterQuery(filters, { exactKeys: ["status"] });
+	const { data, error, filters, loading, order, retry, setPage, sort, toggleSort, updateFilter } =
+		usePaginatedResourceAtoms(itemsResourceAtoms);
 
-	useEffect(() => {
-		let isCurrent = true;
-		void reloadKey;
-		setIsLoading(true);
-		setError(null);
+	const rows = data?.data ?? [];
+	const page = data?.page ?? 1;
+	const totalPages = data?.totalPages ?? 1;
 
-		apiService
-			.get<Item[]>(`/items${query}`)
-			.then((response) => {
-				if (isCurrent) {
-					setItems(response);
-				}
-			})
-			.catch((loadError) => {
-				if (isCurrent) {
-					setError(loadError instanceof Error ? loadError.message : "Failed to load items.");
-				}
-			})
-			.finally(() => {
-				if (isCurrent) {
-					setIsLoading(false);
-				}
-			});
-
-		return () => {
-			isCurrent = false;
-		};
-	}, [query, reloadKey]);
-
-	const tableBody = items.length ? (
-		items.map((item) => (
+	const tableBody = rows.length ? (
+		rows.map((item) => (
 			<TableRow key={item.id}>
 				<TableCell>{item.sku}</TableCell>
 				<TableCell>{item.name}</TableCell>
@@ -89,12 +59,28 @@ export default function ItemsTable() {
 		</div>
 	) : (
 		<div className="overflow-hidden rounded-lg border">
-			{isLoading ? <p className="p-4 text-sm text-muted-foreground">Loading items...</p> : null}
+			{loading ? <p className="p-4 text-sm text-muted-foreground">Loading items...</p> : null}
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead>SKU</TableHead>
-						<TableHead>Name</TableHead>
+						<TableHead>
+							<SortableHeaderButton
+								activeOrder={order}
+								activeSort={sort}
+								field="sku"
+								label="SKU"
+								onToggle={toggleSort}
+							/>
+						</TableHead>
+						<TableHead>
+							<SortableHeaderButton
+								activeOrder={order}
+								activeSort={sort}
+								field="name"
+								label="Name"
+								onToggle={toggleSort}
+							/>
+						</TableHead>
 						<TableHead>Category</TableHead>
 						<TableHead>Unit</TableHead>
 						<TableHead>Status</TableHead>
@@ -103,6 +89,12 @@ export default function ItemsTable() {
 				</TableHeader>
 				<TableBody>{tableBody}</TableBody>
 			</Table>
+			<PaginationFooter
+				page={page}
+				totalPages={totalPages}
+				onPrev={() => setPage(page - 1)}
+				onNext={() => setPage(page + 1)}
+			/>
 		</div>
 	);
 
@@ -113,38 +105,11 @@ export default function ItemsTable() {
 				<ItemEditorDialog onSaved={retry} />
 			</CardHeader>
 			<CardContent className="space-y-3">
-				<div className="grid gap-2 md:grid-cols-4">
-					<Input
-						aria-label="Filter item SKU"
-						placeholder="SKU"
-						value={filters.sku}
-						onChange={(event) => setFilters((current) => ({ ...current, sku: event.target.value }))}
-					/>
-					<Input
-						aria-label="Filter item name"
-						placeholder="Name"
-						value={filters.name}
-						onChange={(event) =>
-							setFilters((current) => ({ ...current, name: event.target.value }))
-						}
-					/>
-					<Input
-						aria-label="Filter item category"
-						placeholder="Category"
-						value={filters.category}
-						onChange={(event) =>
-							setFilters((current) => ({ ...current, category: event.target.value }))
-						}
-					/>
-					<Input
-						aria-label="Filter item status"
-						placeholder="Status"
-						value={filters.status}
-						onChange={(event) =>
-							setFilters((current) => ({ ...current, status: event.target.value }))
-						}
-					/>
-				</div>
+				<ResourceFilterPanel
+					filterDefinitions={itemsResourceAtoms.config.filterDefinitions}
+					filters={filters}
+					onChange={(key, value) => updateFilter({ key, value })}
+				/>
 				{content}
 			</CardContent>
 		</Card>
