@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { DashboardModule } from "./dashboard/dashboard.module";
 import { DatabaseModule } from "./database/database.module";
 import { InventoryModule } from "./inventory/inventory.module";
 import { InventoryPoliciesModule } from "./inventory-policies/inventory-policies.module";
@@ -14,6 +15,7 @@ import { WarehousesModule } from "./warehouses/warehouses.module";
 		ItemCategoriesModule,
 		InventoryPoliciesModule,
 		InventoryModule,
+		DashboardModule,
 	],
 })
 export class AppModule {}
