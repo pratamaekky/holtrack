@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WarehousesRouteImport } from './routes/warehouses'
 import { Route as ItemsRouteImport } from './routes/items'
+import { Route as ItemCategoriesRouteImport } from './routes/item-categories'
+import { Route as InventoryPolicyRouteImport } from './routes/inventory-policy'
+import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +25,21 @@ const WarehousesRoute = WarehousesRouteImport.update({
 const ItemsRoute = ItemsRouteImport.update({
   id: '/items',
   path: '/items',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ItemCategoriesRoute = ItemCategoriesRouteImport.update({
+  id: '/item-categories',
+  path: '/item-categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryPolicyRoute = InventoryPolicyRouteImport.update({
+  id: '/inventory-policy',
+  path: '/inventory-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryRoute = InventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -38,12 +56,18 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/inventory': typeof InventoryRoute
+  '/inventory-policy': typeof InventoryPolicyRoute
+  '/item-categories': typeof ItemCategoriesRoute
   '/items': typeof ItemsRoute
   '/warehouses': typeof WarehousesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/inventory': typeof InventoryRoute
+  '/inventory-policy': typeof InventoryPolicyRoute
+  '/item-categories': typeof ItemCategoriesRoute
   '/items': typeof ItemsRoute
   '/warehouses': typeof WarehousesRoute
 }
@@ -51,20 +75,48 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/inventory': typeof InventoryRoute
+  '/inventory-policy': typeof InventoryPolicyRoute
+  '/item-categories': typeof ItemCategoriesRoute
   '/items': typeof ItemsRoute
   '/warehouses': typeof WarehousesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/items' | '/warehouses'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/inventory'
+    | '/inventory-policy'
+    | '/item-categories'
+    | '/items'
+    | '/warehouses'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/items' | '/warehouses'
-  id: '__root__' | '/' | '/dashboard' | '/items' | '/warehouses'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/inventory'
+    | '/inventory-policy'
+    | '/item-categories'
+    | '/items'
+    | '/warehouses'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/inventory'
+    | '/inventory-policy'
+    | '/item-categories'
+    | '/items'
+    | '/warehouses'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  InventoryRoute: typeof InventoryRoute
+  InventoryPolicyRoute: typeof InventoryPolicyRoute
+  ItemCategoriesRoute: typeof ItemCategoriesRoute
   ItemsRoute: typeof ItemsRoute
   WarehousesRoute: typeof WarehousesRoute
 }
@@ -83,6 +135,27 @@ declare module '@tanstack/react-router' {
       path: '/items'
       fullPath: '/items'
       preLoaderRoute: typeof ItemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/item-categories': {
+      id: '/item-categories'
+      path: '/item-categories'
+      fullPath: '/item-categories'
+      preLoaderRoute: typeof ItemCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory-policy': {
+      id: '/inventory-policy'
+      path: '/inventory-policy'
+      fullPath: '/inventory-policy'
+      preLoaderRoute: typeof InventoryPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory': {
+      id: '/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof InventoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -105,6 +178,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  InventoryRoute: InventoryRoute,
+  InventoryPolicyRoute: InventoryPolicyRoute,
+  ItemCategoriesRoute: ItemCategoriesRoute,
   ItemsRoute: ItemsRoute,
   WarehousesRoute: WarehousesRoute,
 }

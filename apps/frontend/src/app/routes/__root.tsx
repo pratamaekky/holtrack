@@ -1,5 +1,5 @@
 import { createRootRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { Package, Warehouse } from "lucide-react";
+import { Boxes, LayoutDashboard, Package, SlidersHorizontal, Tags, Warehouse } from "lucide-react";
 import type { ComponentType } from "react";
 import { useMemo } from "react";
 import { AppProviders } from "@/app/providers";
@@ -40,7 +40,16 @@ const navigationSections: NavigationSection[] = [
 		label: "Master Data",
 		items: [
 			{ icon: Package, label: "Items", to: "/items" },
+			{ icon: Tags, label: "Item Categories", to: "/item-categories" },
 			{ icon: Warehouse, label: "Warehouses", to: "/warehouses" },
+		],
+	},
+	{
+		label: "Operations",
+		items: [
+			{ icon: Boxes, label: "Inventory", to: "/inventory" },
+			{ icon: SlidersHorizontal, label: "Inventory Policy", to: "/inventory-policy" },
+			{ icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
 		],
 	},
 ];
@@ -105,5 +114,5 @@ function getSidebarItems(items: NavigationItem[], pathname: string) {
 }
 
 function isActivePath(pathname: string, itemPath: string) {
-	return pathname.startsWith(itemPath);
+	return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
 }
