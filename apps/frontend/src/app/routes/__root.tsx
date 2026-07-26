@@ -37,20 +37,24 @@ interface NavigationSection {
 
 const navigationSections: NavigationSection[] = [
 	{
+		label: "Dashboard",
+		items: [{ icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" }],
+	},
+	{
+		label: "Inventory",
+		items: [{ icon: Boxes, label: "Inventory", to: "/inventory" }],
+	},
+	{
 		label: "Master Data",
 		items: [
 			{ icon: Package, label: "Items", to: "/items" },
-			{ icon: Tags, label: "Item Categories", to: "/item-categories" },
+			{ icon: Tags, label: "Categories", to: "/item-categories" },
 			{ icon: Warehouse, label: "Warehouses", to: "/warehouses" },
 		],
 	},
 	{
-		label: "Operations",
-		items: [
-			{ icon: Boxes, label: "Inventory", to: "/inventory" },
-			{ icon: SlidersHorizontal, label: "Inventory Policy", to: "/inventory-policy" },
-			{ icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
-		],
+		label: "Policy",
+		items: [{ icon: SlidersHorizontal, label: "Inventory Policy", to: "/inventory-policy" }],
 	},
 ];
 

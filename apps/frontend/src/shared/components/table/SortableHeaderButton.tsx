@@ -1,3 +1,4 @@
+import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SortableHeaderButtonProps<TSort extends string> {
@@ -19,10 +20,18 @@ export default function SortableHeaderButton<TSort extends string>({
 	const state = isActive
 		? `sorted ${activeOrder === "ASC" ? "ascending" : "descending"}`
 		: "not sorted";
+	const Icon = isActive ? (activeOrder === "ASC" ? ArrowUp : ArrowDown) : ChevronsUpDown;
 
 	return (
-		<Button type="button" variant="ghost" size="sm" onClick={() => onToggle(field)}>
-			{`${label}: ${state}`}
+		<Button
+			type="button"
+			variant="ghost"
+			size="sm"
+			aria-label={`${label}: ${state}`}
+			onClick={() => onToggle(field)}
+		>
+			{label}
+			<Icon aria-hidden="true" className="size-3.5" />
 		</Button>
 	);
 }

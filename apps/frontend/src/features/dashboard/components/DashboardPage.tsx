@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { RefreshCw } from "lucide-react";
 
 import { apiService } from "@/api/apiService";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Table,
@@ -38,6 +40,12 @@ export default function DashboardPage() {
 		(queryError): queryError is Error => queryError instanceof Error,
 	);
 
+	function handleRefresh() {
+		summaryQuery.refetch();
+		byCategoryQuery.refetch();
+		lowStockItemsQuery.refetch();
+	}
+
 	if (error) {
 		return (
 			<Card>
@@ -55,73 +63,99 @@ export default function DashboardPage() {
 
 	return (
 		<div className="grid gap-4">
+			<div className="flex items-start justify-between gap-3">
+				<div>
+					<h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+					<p className="text-sm text-muted-foreground">Inventory health from policy.</p>
+				</div>
+				<Button type="button" variant="outline" size="sm" onClick={handleRefresh}>
+					<RefreshCw aria-hidden="true" />
+					Refresh
+				</Button>
+			</div>
 			<div className="grid gap-4 md:grid-cols-4">
 				<SummaryCard label="Inventory rows" value={summary?.totalRows ?? 0} />
 				<SummaryCard label="In stock" value={summary?.inStockRows ?? 0} />
 				<SummaryCard label="Low stock" value={summary?.lowStockRows ?? 0} />
 				<SummaryCard label="Out of stock" value={summary?.outOfStockRows ?? 0} />
 			</div>
-			<Card>
-				<CardHeader>
-					<CardTitle>Low Stock By Category</CardTitle>
-				</CardHeader>
-				<CardContent className="flex flex-wrap gap-2">
-					{categories.length ? (
-						categories.map((entry) => (
-							<div
-								key={entry.category}
-								className="flex items-center gap-2 rounded-md border px-2 py-1 text-sm"
-							>
-								<span>{entry.category}</span>
-								<Badge variant="outline">{entry.count}</Badge>
-							</div>
-						))
-					) : (
-						<p className="text-sm text-muted-foreground">No low-stock categories.</p>
-					)}
-				</CardContent>
-			</Card>
-			<Card>
-				<CardHeader>
-					<CardTitle>Low Stock Rows</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Warehouse</TableHead>
-								<TableHead>SKU</TableHead>
-								<TableHead>Item</TableHead>
-								<TableHead>Category</TableHead>
-								<TableHead>Qty On Hand</TableHead>
-								<TableHead>Status</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{lowStockItems.length ? (
-								lowStockItems.map((row) => (
-									<TableRow key={row.id}>
-										<TableCell>{row.warehouseCode}</TableCell>
-										<TableCell>{row.itemSku}</TableCell>
-										<TableCell>{row.itemName}</TableCell>
-										<TableCell>{row.category}</TableCell>
-										<TableCell>{row.quantityOnHand}</TableCell>
-										<TableCell>
-											<Badge variant="outline">{formatStatus(row.status)}</Badge>
+			<div className="grid gap-4 md:grid-cols-2">
+				<Card>
+					<CardHeader>
+						<CardTitle>Low Stock by Category</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Category</TableHead>
+									<TableHead className="text-right">Rows</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{categories.length ? (
+									categories.map((entry) => (
+										<TableRow key={entry.category}>
+											<TableCell>{entry.category}</TableCell>
+											<TableCell className="text-right">{entry.count}</TableCell>
+										</TableRow>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={2} className="p-8 text-center text-muted-foreground">
+											No low-stock categories.
 										</TableCell>
 									</TableRow>
-								))
-							) : (
+								)}
+							</TableBody>
+						</Table>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardHeader>
+						<CardTitle>Top Low-Stock Items</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Table>
+							<TableHeader>
 								<TableRow>
-									<TableCell colSpan={6} className="p-8 text-center text-muted-foreground">
-										No low-stock rows.
-									</TableCell>
+									<TableHead>Item</TableHead>
+									<TableHead>Warehouse</TableHead>
+									<TableHead>Category</TableHead>
+									<TableHead>On hand</TableHead>
+									<TableHead>Status</TableHead>
 								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</CardContent>
-			</Card>
+							</TableHeader>
+							<TableBody>
+								{lowStockItems.length ? (
+									lowStockItems.map((row) => (
+										<TableRow key={row.id}>
+											<TableCell>
+												<div className="font-medium">{row.itemSku}</div>
+												<div className="text-sm text-muted-foreground">{row.itemName}</div>
+											</TableCell>
+											<TableCell>{row.warehouseCode}</TableCell>
+											<TableCell>{row.category}</TableCell>
+											<TableCell>{row.quantityOnHand}</TableCell>
+											<TableCell>
+												<Badge variant={row.status === "out_of_stock" ? "destructive" : "outline"}>
+													{formatStatus(row.status)}
+												</Badge>
+											</TableCell>
+										</TableRow>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={5} className="p-8 text-center text-muted-foreground">
+											No low-stock rows.
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 }

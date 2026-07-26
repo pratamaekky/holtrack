@@ -90,9 +90,25 @@ export default function ItemsTable() {
 								onToggle={toggleSort}
 							/>
 						</TableHead>
-						<TableHead>Category</TableHead>
+						<TableHead>
+							<SortableHeaderButton
+								activeOrder={order}
+								activeSort={sort}
+								field="category"
+								label="Category"
+								onToggle={toggleSort}
+							/>
+						</TableHead>
 						<TableHead>Unit</TableHead>
-						<TableHead>Status</TableHead>
+						<TableHead>
+							<SortableHeaderButton
+								activeOrder={order}
+								activeSort={sort}
+								field="status"
+								label="Status"
+								onToggle={toggleSort}
+							/>
+						</TableHead>
 						<TableHead />
 					</TableRow>
 				</TableHeader>
