@@ -1,3 +1,1 @@
-export function InventoryPolicyPage() {
-	return null;
-}
+export { default as InventoryPolicyPage } from "./components/InventoryPolicyPage";
