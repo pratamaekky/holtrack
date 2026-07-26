@@ -29,7 +29,8 @@ export default function InventoryTable() {
 	const tableBody = rows.length ? (
 		rows.map((row) => (
 			<TableRow key={row.id}>
-				<TableCell>{`${row.warehouseCode} - ${row.warehouseName}`}</TableCell>
+				<TableCell>{row.warehouseCode}</TableCell>
+				<TableCell>{row.warehouseName}</TableCell>
 				<TableCell>{row.itemSku}</TableCell>
 				<TableCell>{row.itemName}</TableCell>
 				<TableCell>{row.category}</TableCell>
@@ -55,7 +56,7 @@ export default function InventoryTable() {
 		))
 	) : (
 		<TableRow>
-			<TableCell colSpan={8} className="p-8 text-center text-muted-foreground">
+			<TableCell colSpan={9} className="p-8 text-center text-muted-foreground">
 				No inventory.
 			</TableCell>
 		</TableRow>
@@ -74,7 +75,8 @@ export default function InventoryTable() {
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead>Warehouse</TableHead>
+						<TableHead>Warehouse Code</TableHead>
+						<TableHead>Warehouse Name</TableHead>
 						<TableHead>
 							<SortableHeaderButton
 								activeOrder={order}
