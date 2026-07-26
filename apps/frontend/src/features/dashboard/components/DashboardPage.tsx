@@ -34,6 +34,24 @@ export default function DashboardPage() {
 	const summary = summaryQuery.data;
 	const categories = byCategoryQuery.data ?? [];
 	const lowStockItems = lowStockItemsQuery.data ?? [];
+	const error = [summaryQuery.error, byCategoryQuery.error, lowStockItemsQuery.error].find(
+		(queryError): queryError is Error => queryError instanceof Error,
+	);
+
+	if (error) {
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle>Dashboard</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p role="alert" className="text-sm text-destructive">
+						{error.message}
+					</p>
+				</CardContent>
+			</Card>
+		);
+	}
 
 	return (
 		<div className="grid gap-4">
