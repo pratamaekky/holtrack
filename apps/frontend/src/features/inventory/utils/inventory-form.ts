@@ -1,3 +1,5 @@
+import type { Inventory, InventoryPayload } from "@/shared/data/wms";
+
 export interface InventoryFormState {
 	itemId: string;
 	quantityOnHand: string;
@@ -5,10 +7,31 @@ export interface InventoryFormState {
 	warehouseId: string;
 }
 
-export function getInitialInventoryForm(_inventory?: unknown): InventoryFormState {
-	return { warehouseId: "", itemId: "", quantityOnHand: "0", reorderPoint: "0" };
+const emptyInventoryForm: InventoryFormState = {
+	warehouseId: "",
+	itemId: "",
+	quantityOnHand: "0",
+	reorderPoint: "0",
+};
+
+export function getInitialInventoryForm(inventory?: Inventory): InventoryFormState {
+	if (!inventory) {
+		return emptyInventoryForm;
+	}
+
+	return {
+		warehouseId: inventory.warehouseId,
+		itemId: inventory.itemId,
+		quantityOnHand: String(inventory.quantityOnHand),
+		reorderPoint: String(inventory.reorderPoint),
+	};
 }
 
-export function getInventoryPayload(_form: InventoryFormState): unknown {
-	return {};
+export function getInventoryPayload(form: InventoryFormState): InventoryPayload {
+	return {
+		warehouseId: form.warehouseId,
+		itemId: form.itemId,
+		quantityOnHand: Number(form.quantityOnHand),
+		reorderPoint: Number(form.reorderPoint),
+	};
 }

@@ -1,7 +1,48 @@
+import { useEffect, useState } from "react";
+import { apiService } from "@/api/apiService";
+import type { Item, PaginatedResponse, Warehouse } from "@/shared/data/wms";
+
 export function InventoryTable() {
 	return null;
 }
 
-export function useInventoryOptions(_enabled?: boolean) {
-	return { loading: false, warehouses: [], items: [] };
+export function useInventoryOptions(enabled = true) {
+	const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+	const [items, setItems] = useState<Item[]>([]);
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		if (!enabled) {
+			return;
+		}
+
+		let cancelled = false;
+		setLoading(true);
+
+		Promise.all([
+			apiService.get<PaginatedResponse<Warehouse>>(
+				"/warehouses?page=1&limit=50&sort=code&order=ASC",
+			),
+			apiService.get<PaginatedResponse<Item>>("/items?page=1&limit=50&sort=sku&order=ASC"),
+		])
+			.then(([warehousesResponse, itemsResponse]) => {
+				if (cancelled) {
+					return;
+				}
+
+				setWarehouses(warehousesResponse.data);
+				setItems(itemsResponse.data);
+			})
+			.finally(() => {
+				if (!cancelled) {
+					setLoading(false);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [enabled]);
+
+	return { items, loading, warehouses };
 }

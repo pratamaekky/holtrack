@@ -1,23 +1,44 @@
-interface FilterQueryOptions {
-	exactKeys?: string[];
+export interface ResourceFilterDefinition<TKey extends string = string> {
+	ariaLabel: string;
+	key: TKey;
+	label: string;
+	operator: "eq" | "ilike";
+	options?: { label: string; value: string }[];
+	type: "input" | "select";
 }
 
-export function buildFilterQuery(
-	filters: Record<string, string>,
-	options: FilterQueryOptions = {},
-) {
-	const params = new URLSearchParams();
-	const exactKeys = new Set(options.exactKeys ?? []);
+interface BuildResourceQueryParams<TFilters extends Record<string, string>> {
+	filterDefinitions: ResourceFilterDefinition[];
+	filters: TFilters;
+	limit: number;
+	order: "ASC" | "DESC";
+	page: number;
+	sort: string;
+}
 
-	for (const [key, value] of Object.entries(filters)) {
-		const trimmedValue = value.trim();
-		if (!trimmedValue) {
+export function buildResourceQuery<TFilters extends Record<string, string>>({
+	filterDefinitions,
+	filters,
+	limit,
+	order,
+	page,
+	sort,
+}: BuildResourceQueryParams<TFilters>): string {
+	const params = new URLSearchParams();
+	params.set("page", String(page));
+	params.set("limit", String(limit));
+	params.set("sort", sort);
+	params.set("order", order);
+
+	for (const definition of filterDefinitions) {
+		const value = filters[definition.key]?.trim();
+
+		if (!value) {
 			continue;
 		}
 
-		params.set(key, `${exactKeys.has(key) ? "eq" : "ilike"}:${trimmedValue}`);
+		params.set(definition.key, `${definition.operator}:${value}`);
 	}
 
-	const query = params.toString();
-	return query ? `?${query}` : "";
+	return `?${params.toString()}`;
 }
