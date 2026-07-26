@@ -9,6 +9,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import DeleteResourceDialog from "@/shared/components/DeleteResourceDialog";
 import PaginationFooter from "@/shared/components/table/PaginationFooter";
 import ResourceFilterPanel from "@/shared/components/table/ResourceFilterPanel";
 import SortableHeaderButton from "@/shared/components/table/SortableHeaderButton";
@@ -37,7 +38,15 @@ export default function WarehousesTable() {
 					</Badge>
 				</TableCell>
 				<TableCell className="text-right">
-					<WarehouseEditorDialog warehouse={warehouse} onSaved={retry} />
+					<div className="flex justify-end gap-1">
+						<WarehouseEditorDialog warehouse={warehouse} onSaved={retry} />
+						<DeleteResourceDialog
+							endpoint={`/warehouses/${warehouse.id}`}
+							label="warehouse"
+							name={warehouse.code}
+							onDeleted={retry}
+						/>
+					</div>
 				</TableCell>
 			</TableRow>
 		))

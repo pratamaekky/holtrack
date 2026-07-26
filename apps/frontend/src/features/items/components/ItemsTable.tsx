@@ -9,6 +9,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import DeleteResourceDialog from "@/shared/components/DeleteResourceDialog";
 import PaginationFooter from "@/shared/components/table/PaginationFooter";
 import ResourceFilterPanel from "@/shared/components/table/ResourceFilterPanel";
 import SortableHeaderButton from "@/shared/components/table/SortableHeaderButton";
@@ -38,7 +39,15 @@ export default function ItemsTable() {
 					</Badge>
 				</TableCell>
 				<TableCell className="text-right">
-					<ItemEditorDialog item={item} onSaved={retry} />
+					<div className="flex justify-end gap-1">
+						<ItemEditorDialog item={item} onSaved={retry} />
+						<DeleteResourceDialog
+							endpoint={`/items/${item.id}`}
+							label="item"
+							name={item.sku}
+							onDeleted={retry}
+						/>
+					</div>
 				</TableCell>
 			</TableRow>
 		))
