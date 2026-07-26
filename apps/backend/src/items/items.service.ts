@@ -59,18 +59,23 @@ export class ItemsService {
 	}
 
 	async update(id: string, request: ItemRequest): Promise<Item> {
-		const item = await this.findById(id);
+		await this.findById(id);
 		const sku = normalizeSku(request.sku);
 		await this.assertSkuAvailable(sku, id);
 		await this.assertCategoryExists(request.categoryId);
 
-		item.sku = sku;
-		item.name = request.name.trim();
-		item.categoryId = request.categoryId;
-		item.unit = request.unit.trim();
-		item.status = request.status;
+		// Uses update() rather than load+mutate+save: Item.category is loaded
+		// eagerly by findById(), and TypeORM prefers a loaded relation object
+		// over a directly-set foreign key column when persisting via save(),
+		// so changing item.categoryId alone would silently be discarded.
+		await this.itemRepository.update(id, {
+			sku,
+			name: request.name.trim(),
+			categoryId: request.categoryId,
+			unit: request.unit.trim(),
+			status: request.status,
+		});
 
-		await this.itemRepository.save(item);
 		return this.findById(id);
 	}
 

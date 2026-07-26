@@ -122,17 +122,22 @@ export class InventoryService {
 	}
 
 	async update(id: string, request: InventoryRequest): Promise<InventoryRow> {
-		const inventory = await this.findEntityById(id);
+		await this.findEntityById(id);
 		await this.assertWarehouseExists(request.warehouseId);
 		await this.assertItemExists(request.itemId);
 		await this.assertNotDuplicate(request.warehouseId, request.itemId, id);
 
-		inventory.warehouseId = request.warehouseId;
-		inventory.itemId = request.itemId;
-		inventory.quantityOnHand = request.quantityOnHand;
-		inventory.reorderPoint = request.reorderPoint;
+		// Uses update() rather than load+mutate+save: warehouse/item are eager
+		// relations, and TypeORM prefers a loaded relation object over a
+		// directly-set foreign key column when persisting via save(), so
+		// changing warehouseId/itemId alone would silently be discarded.
+		await this.inventoryRepository.update(id, {
+			warehouseId: request.warehouseId,
+			itemId: request.itemId,
+			quantityOnHand: request.quantityOnHand,
+			reorderPoint: request.reorderPoint,
+		});
 
-		await this.inventoryRepository.save(inventory);
 		return this.findRowById(id);
 	}
 
