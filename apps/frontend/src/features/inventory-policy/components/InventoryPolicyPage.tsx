@@ -15,13 +15,18 @@ const modeOptions: Array<{ label: string; value: LowStockMode }> = [
 ];
 
 export default function InventoryPolicyPage() {
-	const { data: policy, loading } = useInventoryPolicy();
+	const { data: policy, error: loadError, loading } = useInventoryPolicy();
 	const [form, setForm] = useState<InventoryPolicyPayload>({
 		lowStockMode: "reorder_point",
 		lowStockThreshold: 0,
 	});
+	const [saveError, setSaveError] = useState<string | null>(null);
 	const saveMutation = useSaveInventoryPolicy({
-		onSaved: () => toast.success("Inventory policy saved."),
+		onError: setSaveError,
+		onSaved: () => {
+			setSaveError(null);
+			toast.success("Inventory policy saved.");
+		},
 	});
 
 	useEffect(() => {
@@ -32,11 +37,25 @@ export default function InventoryPolicyPage() {
 
 	function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
+		setSaveError(null);
 		saveMutation.mutate(form);
 	}
 
 	if (loading && !policy) {
 		return null;
+	}
+
+	if (loadError && !policy) {
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle>Inventory Policy</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="text-sm text-destructive">{loadError}</p>
+				</CardContent>
+			</Card>
+		);
 	}
 
 	return (
@@ -73,6 +92,7 @@ export default function InventoryPolicyPage() {
 							/>
 						</div>
 					) : null}
+					{saveError ? <p className="text-sm text-destructive">{saveError}</p> : null}
 					<Button type="submit" disabled={saveMutation.isPending}>
 						{saveMutation.isPending ? "Saving..." : "Save"}
 					</Button>
