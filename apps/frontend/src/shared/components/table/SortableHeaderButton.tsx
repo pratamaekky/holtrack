@@ -16,7 +16,9 @@ export default function SortableHeaderButton<TSort extends string>({
 	onToggle,
 }: SortableHeaderButtonProps<TSort>) {
 	const isActive = field === activeSort;
-	const state = isActive ? (activeOrder === "ASC" ? "ascending" : "descending") : "not sorted";
+	const state = isActive
+		? `sorted ${activeOrder === "ASC" ? "ascending" : "descending"}`
+		: "not sorted";
 
 	return (
 		<Button type="button" variant="ghost" size="sm" onClick={() => onToggle(field)}>
