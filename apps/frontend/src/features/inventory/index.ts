@@ -33,6 +33,10 @@ export function useInventoryOptions(enabled = true) {
 				setWarehouses(warehousesResponse.data);
 				setItems(itemsResponse.data);
 			})
+			.catch(() => {
+				// No error slot in this hook's return shape (matching the brief);
+				// swallow so a failed fetch doesn't surface as an unhandled rejection.
+			})
 			.finally(() => {
 				if (!cancelled) {
 					setLoading(false);
