@@ -54,7 +54,12 @@ export class FilterQueryBuilder<T extends ObjectLiteral> {
 	}
 
 	private applyPagination(query: ListQueryRequest): this {
-		this.queryBuilder.skip((query.page - 1) * query.limit).take(query.limit);
+		// .limit()/.offset() emit a literal SQL LIMIT/OFFSET; .skip()/.take() instead
+		// build a subquery-based pagination strategy meant for getMany() with
+		// one-to-many joins, which silently ignores the limit under getRawMany().
+		// All joins in this codebase are many-to-one, so plain LIMIT/OFFSET is correct
+		// for both getMany() and getRawMany().
+		this.queryBuilder.offset((query.page - 1) * query.limit).limit(query.limit);
 		return this;
 	}
 }

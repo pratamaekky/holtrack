@@ -98,7 +98,7 @@ export class InventoryService {
 			.where(`${statusSql} IN (:...statuses)`, { statuses: ["low_stock", "out_of_stock"] })
 			.orderBy(severitySql, "ASC")
 			.addOrderBy("inventory.quantityOnHand", "ASC")
-			.take(limit)
+			.limit(limit)
 			.getRawMany();
 
 		return rows.map(mapInventoryRow);
